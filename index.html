@@ -235,6 +235,26 @@ tr.tsub td{background:var(--gp);font-weight:700;color:var(--gd)}
 .cbtn-em{background:linear-gradient(135deg,#2D6A4F,#1B4332)}
 @media(min-width:600px){.content{padding:18px 20px 90px}.br{grid-template-columns:1fr 56px 76px 30px}.header-title{font-size:1.1rem}.rc{flex:0 0 200px}}
 </style>
+<!// Import the functions you need from the SDKs you need
+import { initializeApp } from "firebase/app";
+// TODO: Add SDKs for Firebase products that you want to use
+// https://firebase.google.com/docs/web/setup#available-libraries
+
+// Your web app's Firebase configuration
+const firebaseConfig = {
+  apiKey: "AIzaSyDTtVVh0CBve5rXoR606EwoQWl2o08LAFQ",
+  authDomain: "village-prime.firebaseapp.com",
+  projectId: "village-prime",
+  storageBucket: "village-prime.firebasestorage.app",
+  messagingSenderId: "454045630573",
+  appId: "1:454045630573:web:9f0bf47a448af9a0c1ff64"
+};
+
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
 </head>
 <body>
 <div id="offline-bar">&#128245; Offline &mdash; App running from cache</div>

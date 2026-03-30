@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Village Prime — Login</title>
+
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+  <script src="firebase-config.js"></script>
+
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: sans-serif;
+      background: #f4f7f4;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .card {
+      background: white;
+      border-radius: 16px;
+      padding: 40px 32px;
+      width: 100%;
+      max-width: 400px;
+      box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+    }
+
+    .brand {
+      text-align: center;
+      margin-bottom: 28px;
+    }
+
+    .brand h1 {
+      font-size: 22px;
+      color: #1b5e20;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+    }
+
+    .brand p {
+      font-size: 13px;
+      color: #777;
+      margin-top: 4px;
+    }
+
+    h2 {
+      font-size: 18px;
+      color: #222;
+      margin-bottom: 20px;
+      text-align: center;
+    }
+
+    input {
+      width: 100%;
+      padding: 13px 16px;
+      margin-bottom: 12px;
+      border: 1.5px solid #ddd;
+      border-radius: 10px;
+      font-size: 15px;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    input:focus {
+      border-color: #2e7d32;
+    }
+
+    button.main-btn {
+      width: 100%;
+      padding: 14px;
+      background: #2e7d32;
+      color: white;
+      border: none;
+      border-radius: 10px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      margin-top: 4px;
+      transition: background 0.2s;
+    }
+
+    button.main-btn:hover {
+      background: #1b5e20;
+    }
+
+    button.main-btn:disabled {
+      background: #aaa;
+      cursor: not-allowed;
+    }
+
+    .error-msg {
+      color: #c62828;
+      font-size: 13px;
+      margin-top: 8px;
+      text-align: center;
+      min-height: 20px;
+    }
+
+    .toggle-text {
+      text-align: center;
+      margin-top: 20px;
+      font-size: 14px;
+      color: #555;
+    }
+
+    .toggle-text span {
+      color: #2e7d32;
+      font-weight: 600;
+      cursor: pointer;
+      text-decoration: underline;
+    }
+
+    .forgot {
+      text-align: center;
+      margin-top: 10px;
+      font-size: 13px;
+      color: #2e7d32;
+      cursor: pointer;
+      text-decoration: underline;
+    }
+
+    .divider {
+      text-align: center;
+      font-size: 12px;
+      color: #aaa;
+      margin: 6px 0 14px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="card">
+
+    <div class="brand">
+      <h1>Village Prime</h1>
+      <p>Professional Pig Feed Formulation</p>
+    </div>
+
+    <h2 id="form-title">Welcome back</h2>
+
+    <input type="email" id="email" placeholder="Email address" />
+    <input type="password" id="password" placeholder="Password" />
+
+    <p class="error-msg" id="error-msg"></p>
+
+    <button class="main-btn" id="submit-btn" onclick="submitForm()">
+      Log in
+    </button>
+
+    <p class="forgot" id="forgot-link" onclick="forgotPassword()">
+      Forgot password?
+    </p>
+
+    <div class="divider">— or —</div>
+
+    <div class="toggle-text">
+      Don't have an account?
+      <span onclick="toggleMode()">Sign up</span>
+    </div>
+
+  </div>
+
+  <script>
+    let isSignup = false;
+
+    // If already logged in, skip this page
+    auth.onAuthStateChanged(function(user) {
+      if (user) {
+        window.location.href = 'index.html';
+      }
+    });
+
+    function toggleMode() {
+      isSignup = !isSignup;
+      document.getElementById('form-title').textContent =
+        isSignup ? 'Create your account' : 'Welcome back';
+      document.getElementById('submit-btn').textContent =
+        isSignup ? 'Sign up' : 'Log in';
+      document.getElementById('forgot-link').style.display =
+        isSignup ? 'none' : 'block';
+      document.getElementById('error-msg').textContent = '';
+    }
+
+    async function submitForm() {
+      const email    = document.getElementById('email').value.trim();
+      const password = document.getElementById('password').value;
+      const errEl    = document.getElementById('error-msg');
+      const btn      = document.getElementById('submit-btn');
+
+      errEl.textContent = '';
+
+      // Basic validation
+      if (!email || !password) {
+        errEl.textContent = 'Please enter your email and password.';
+        return;
+      }
+
+      // Disable button while working
+      btn.disabled = true;
+      btn.textContent = isSignup ? 'Creating account...' : 'Logging in...';
+
+      try {
+        if (isSignup) {
+          await auth.createUserWithEmailAndPassword(email, password);
+        } else {
+          await auth.signInWithEmailAndPassword(email, password);
+        }
+        // Success — auth gate on index.html handles the rest
+        window.location.href = 'index.html';
+
+      } catch (err) {
+        // Friendly error messages
+        const messages = {
+          'auth/user-not-found':       'No account found with that email.',
+          'auth/wrong-password':        'Incorrect password. Please try again.',
+          'auth/email-already-in-use':  'That email is already registered. Try logging in.',
+          'auth/weak-password':         'Password must be at least 6 characters.',
+          'auth/invalid-email':         'Please enter a valid email address.',
+          'auth/too-many-requests':     'Too many attempts. Please wait a few minutes.',
+          'auth/invalid-credential':    'Incorrect email or password.'
+        };
+        errEl.textContent = messages[err.code] || 'Something went wrong. Please try again.';
+        btn.disabled = false;
+        btn.textContent = isSignup ? 'Sign up' : 'Log in';
+      }
+    }
+
+    async function forgotPassword() {
+      const email = document.getElementById('email').value.trim();
+      const errEl = document.getElementById('error-msg');
+
+      if (!email) {
+        errEl.style.color = '#c62828';
+        errEl.textContent = 'Enter your email address above first.';
+        return;
+      }
+
+      try {
+        await auth.sendPasswordResetEmail(email);
+        errEl.style.color = '#2e7d32';
+        errEl.textContent = 'Reset email sent! Check your inbox.';
+      } catch (err) {
+        errEl.style.color = '#c62828';
+        errEl.textContent = 'Could not send reset email. Check the address.';
+      }
+    }
+
+    // Allow pressing Enter to submit
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Enter') submitForm();
+    });
+  </script>
+
+</body>
+</html>

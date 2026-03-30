@@ -1,4 +1,6 @@
 // firebase-config.js
+// Using the compat version — works directly in plain HTML files
+
 const firebaseConfig = {
   apiKey: "AIzaSyDTtVVh0CBve5rXoR606EwoQWl2o08LAFQ",
   authDomain: "village-prime.firebaseapp.com",
@@ -10,5 +12,7 @@ const firebaseConfig = {
 
 // Initialize Firebase
 firebase.initializeApp(firebaseConfig);
+
+// Make auth and database available to all pages
 const auth = firebase.auth();
 const db = firebase.firestore();

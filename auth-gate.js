@@ -1,35 +1,45 @@
-// auth-gate.js — include this on EVERY page of your PWA
+// auth-gate.js
+// This runs on every page load and checks if the user is allowed in
 
-auth.onAuthStateChanged(async (user) => {
+auth.onAuthStateChanged(async function(user) {
+
+  // No user logged in — send to login page
   if (!user) {
-    // Not logged in — redirect to login page
-    window.location.href = '/login.html';
+    window.location.href = 'login.html';
     return;
   }
 
-  // Check access in Firestore
-  const userDoc = await db.collection('users').doc(user.uid).get();
-  
-  if (!userDoc.exists) {
-    // New user — send them to access code entry
-    window.location.href = '/enter-code.html';
-    return;
+  // User is logged in — now check their status in Firestore
+  try {
+    const userDoc = await db.collection('users').doc(user.uid).get();
+
+    if (!userDoc.exists) {
+      // Logged in but no record yet — send to enter access code
+      window.location.href = 'enter-code.html';
+      return;
+    }
+
+    const userData = userDoc.data();
+
+    if (userData.status !== 'active') {
+      // Account suspended or expired
+      window.location.href = 'access-denied.html';
+      return;
+    }
+
+    // ✅ All checks passed — show the tool
+    document.getElementById('app').style.display = 'block';
+
+    // Record this login for analytics
+    await db.collection('users').doc(user.uid).update({
+      lastLogin: firebase.firestore.FieldValue.serverTimestamp(),
+      loginCount: firebase.firestore.FieldValue.increment(1)
+    });
+
+  } catch (error) {
+    console.error('Auth gate error:', error);
+    // If something goes wrong, play it safe and redirect to login
+    window.location.href = 'login.html';
   }
 
-  const userData = userDoc.data();
-  
-  if (userData.status !== 'active') {
-    // Suspended or expired — redirect
-    window.location.href = '/access-denied.html';
-    return;
-  }
-
-  // ✅ All good — show the app
-  document.getElementById('app').style.display = 'block';
-  
-  // Log this session for analytics
-  await db.collection('users').doc(user.uid).update({
-    lastLogin: firebase.firestore.FieldValue.serverTimestamp(),
-    loginCount: firebase.firestore.FieldValue.increment(1)
-  });
 });

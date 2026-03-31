@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Village Prime — Enter Access Code</title>
+
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+  <script src="firebase-config.js"></script>
+
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: sans-serif;
+      background: #f4f7f4;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .card {
+      background: white;
+      border-radius: 16px;
+      padding: 40px 32px;
+      width: 100%;
+      max-width: 420px;
+      box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+      text-align: center;
+    }
+
+    .brand h1 {
+      font-size: 22px;
+      color: #1b5e20;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+
+    .brand p {
+      font-size: 13px;
+      color: #777;
+      margin-bottom: 28px;
+    }
+
+    h2 {
+      font-size: 18px;
+      color: #222;
+      margin-bottom: 8px;
+    }
+
+    .subtitle {
+      font-size: 14px;
+      color: #666;
+      margin-bottom: 24px;
+      line-height: 1.5;
+    }
+
+    input {
+      width: 100%;
+      padding: 16px;
+      font-size: 20px;
+      letter-spacing: 6px;
+      text-transform: uppercase;
+      text-align: center;
+      border: 2px solid #ddd;
+      border-radius: 10px;
+      outline: none;
+      transition: border-color 0.2s;
+      margin-bottom: 16px;
+    }
+
+    input:focus {
+      border-color: #2e7d32;
+    }
+
+    button {
+      width: 100%;
+      padding: 14px;
+      background: #2e7d32;
+      color: white;
+      border: none;
+      border-radius: 10px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    button:hover { background: #1b5e20; }
+
+    button:disabled {
+      background: #aaa;
+      cursor: not-allowed;
+    }
+
+    .status {
+      margin-top: 16px;
+      font-size: 14px;
+      min-height: 20px;
+      line-height: 1.5;
+    }
+
+    .status.error   { color: #c62828; }
+    .status.success { color: #2e7d32; font-weight: 600; }
+    .status.checking { color: #888; }
+
+    .logout-link {
+      margin-top: 24px;
+      font-size: 13px;
+      color: #aaa;
+    }
+
+    .logout-link span {
+      color: #2e7d32;
+      cursor: pointer;
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="card">
+
+    <div class="brand">
+      <h1>Village Prime</h1>
+      <p>Professional Pig Feed Formulation</p>
+    </div>
+
+    <h2>Enter Your Access Code</h2>
+    <p class="subtitle">
+      You need a valid access code to use this tool.<br>
+      Contact Village Prime to get your code.
+    </p>
+
+    <input
+      type="text"
+      id="code-input"
+      placeholder="E.G. VILLAGEPRIME2024"
+      maxlength="30"
+      autocomplete="off"
+      autocorrect="off"
+      autocapitalize="characters"
+      spellcheck="false"
+    />
+
+    <button id="activate-btn" onclick="redeemCode()">
+      Activate Access
+    </button>
+
+    <p class="status" id="status-msg"></p>
+
+    <div class="logout-link">
+      Wrong account? <span onclick="logout()">Sign out</span>
+    </div>
+
+  </div>
+
+  <script>
+    // Make sure user is logged in — if not, send to login
+    auth.onAuthStateChanged(function(user) {
+      if (!user) {
+        window.location.href = 'login.html';
+      }
+    });
+
+    async function redeemCode() {
+      const user = auth.currentUser;
+      if (!user) {
+        window.location.href = 'login.html';
+        return;
+      }
+
+      const rawCode = document.getElementById('code-input').value;
+      const code = rawCode.trim().toUpperCase();
+      const statusEl = document.getElementById('status-msg');
+      const btn = document.getElementById('activate-btn');
+
+      // Basic check
+      if (!code) {
+        statusEl.textContent = 'Please enter your access code.';
+        statusEl.className = 'status error';
+        return;
+      }
+
+      // Show loading state
+      btn.disabled = true;
+      btn.textContent = 'Checking...';
+      statusEl.textContent = 'Verifying your code...';
+      statusEl.className = 'status checking';
+
+      try {
+        // Look up the code in Firestore
+        const codeRef = db.collection('access_codes').doc(code);
+        const codeDoc = await codeRef.get();
+
+        // Code does not exist
+        if (!codeDoc.exists) {
+          statusEl.textContent = 'Invalid code. Please check and try again.';
+          statusEl.className = 'status error';
+          btn.disabled = false;
+          btn.textContent = 'Activate Access';
+          return;
+        }
+
+        const codeData = codeDoc.data();
+
+        // Code is deactivated
+        if (!codeData.active) {
+          statusEl.textContent = 'This code has been deactivated. Please contact Village Prime.';
+          statusEl.className = 'status error';
+          btn.disabled = false;
+          btn.textContent = 'Activate Access';
+          return;
+        }
+
+        // Code has reached max uses
+        if (codeData.usedCount >= codeData.maxUses) {
+          statusEl.textContent = 'This code has reached its usage limit.';
+          statusEl.className = 'status error';
+          btn.disabled = false;
+          btn.textContent = 'Activate Access';
+          return;
+        }
+
+        // ✅ Code is valid — create user record and increment usage
+        const batch = db.batch();
+
+        // Save user to Firestore users collection
+        batch.set(db.collection('users').doc(user.uid), {
+          email: user.email,
+          status: 'active',
+          plan: codeData.type,
+          accessCode: code,
+          activatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+          lastLogin: firebase.firestore.FieldValue.serverTimestamp(),
+          loginCount: 1,
+          // Future M-PESA fields ready (empty for now)
+          subscription: {
+            mpesaPhone: '',
+            lastPaymentDate: null,
+            nextRenewalDate: null,
+            amount: 0
+          }
+        });
+
+        // Increment the code's usage count
+        batch.update(codeRef, {
+          usedCount: firebase.firestore.FieldValue.increment(1)
+        });
+
+        await batch.commit();
+
+        // Show success and redirect
+        statusEl.textContent = '✓ Access granted! Loading your tool...';
+        statusEl.className = 'status success';
+
+        setTimeout(function() {
+          window.location.href = 'index.html';
+        }, 1500);
+
+      } catch (error) {
+        console.error('Code redemption error:', error);
+        statusEl.textContent = 'Something went wrong. Please try again.';
+        statusEl.className = 'status error';
+        btn.disabled = false;
+        btn.textContent = 'Activate Access';
+      }
+    }
+
+    function logout() {
+      auth.signOut().then(function() {
+        window.location.href = 'login.html';
+      });
+    }
+
+    // Allow Enter key to submit
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Enter') redeemCode();
+    });
+  </script>
+
+</body>
+</html>

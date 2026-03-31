@@ -1,6 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+  <!-- Village Prime logout button -->
+<div style="text-align:right; padding: 10px 16px; background: #f4f7f4; border-bottom: 1px solid #ddd;">
+  <span style="font-size:13px; color:#555; margin-right:10px;">Village Prime</span>
+  <button onclick="logout()" style="padding: 6px 16px; background: #2e7d32; color: white; border: none; border-radius: 6px; font-size: 13px; cursor: pointer;">
+    Sign out
+  </button>
+</div>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no"/>
 <title>Village Prime Feed Tool</title>
@@ -970,6 +977,20 @@ function doShare(){
     navigator.clipboard.writeText(txt).then(function(){toast('Copied! Paste into WhatsApp.',1);}).catch(function(){toast('Copy failed - try PDF instead');});
   }
 }
+function logout() {
+  auth.signOut().then(function() {
+    window.location.href = 'login.html';
+  });
+}
+```
+
+---
+
+Save `index.html`, then push everything to GitHub. In your VS Code terminal run:
+```
+git add .
+git commit -m "Phase 3: Access code system and logout button"
+git push
 </script>
 </div>
 

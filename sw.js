@@ -3,7 +3,7 @@
    Fixed for GitHub Pages at /Feed-Formulation-Tool/
    ============================================================ */
 
-const CACHE_NAME = 'vp-feed-tool-v2';
+const CACHE_NAME = 'vp-feed-tool-v4';
 const BASE = '/Feed-Formulation-Tool';
 
 const PRECACHE = [

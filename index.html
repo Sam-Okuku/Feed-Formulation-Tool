@@ -982,20 +982,14 @@ function logout() {
     window.location.href = 'login.html';
   });
 }
-```
-
----
-
-Save `index.html`, then push everything to GitHub. In your VS Code terminal run:
-```
-git add .
-git commit -m "Phase 3: Access code system and logout button"
-git push
 </script>
 </div>
 
-<script src="firebase-config.js"></script>
-<script src="auth-gate.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+  <script src="firebase-config.js"></script>
+  <script src="auth-gate.js"></script>
 
 </body>
 </html>

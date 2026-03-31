@@ -18,6 +18,10 @@
 <link rel="apple-touch-icon" href="icons/icon-192.png"/>
 <link rel="manifest" href="manifest.json" crossorigin="use-credentials"/>
 <style>
+  /* Auth gate styles */
+.auth-hidden { display: none !important; }
+body { opacity: 0; transition: opacity 0.3s; }
+body.auth-ready { opacity: 1; }
 :root{
   --gd:#1B4332;--gm:#2D6A4F;--gl:#52B788;--gp:#D8F3DC;
   --y:#FFEB3B;--yd:#F9A825;--yp:#FFFDE7;

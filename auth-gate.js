@@ -1,72 +1,62 @@
-// auth-gate.js — Final secure version
+// auth-gate.js — Clean version using body visibility
 
 async function initAuthGate() {
-  return new Promise(function(resolve) {
 
-    auth.onAuthStateChanged(async function(user) {
+  auth.onAuthStateChanged(async function(user) {
 
-      // No user logged in — go to login page
-      if (!user) {
-        window.location.href = 'login.html';
-        resolve();
+    // No user — go to login
+    if (!user) {
+      window.location.href = 'login.html';
+      return;
+    }
+
+    try {
+      // Check Firestore for user record
+      const userDoc = await db
+        .collection('users')
+        .doc(user.uid)
+        .get();
+
+      // No record — needs access code
+      if (!userDoc.exists) {
+        window.location.href = 'enter-code.html';
         return;
       }
 
-      try {
-        // Check if this user has a record in Firestore
-        const userDoc = await db
-          .collection('users')
-          .doc(user.uid)
-          .get();
+      const userData = userDoc.data();
 
-        // No Firestore record = new user, needs a code
-        if (!userDoc.exists) {
-          window.location.href = 'enter-code.html';
-          resolve();
-          return;
-        }
-
-        const userData = userDoc.data();
-
-        // Account exists but is not active
-        if (!userData || userData.status !== 'active') {
-          window.location.href = 'access-denied.html';
-          resolve();
-          return;
-        }
-
-        // ✅ User is valid and active — show the tool
-        const appDiv = document.getElementById('app');
-        if (appDiv) {
-          appDiv.style.display = 'block';
-        }
-
-        // Update last login silently
-        db.collection('users').doc(user.uid).update({
-          lastLogin: firebase.firestore.FieldValue.serverTimestamp(),
-          loginCount: firebase.firestore.FieldValue.increment(1)
-        }).catch(function(e) {
-          console.log('Login update error:', e);
-        });
-
-      } catch (error) {
-        console.error('Auth gate error:', error.code, error.message);
-
-        if (error.code === 'permission-denied') {
-          // Firestore blocked — user has no record, send to code page
-          window.location.href = 'enter-code.html';
-          resolve();
-          return;
-        }
-
-        // Any other error — back to login
-        window.location.href = 'login.html';
-        resolve();
+      // Account not active
+      if (!userData || userData.status !== 'active') {
+        window.location.href = 'access-denied.html';
+        return;
       }
 
-      resolve();
-    });
+      // ✅ Valid user — reveal the page
+      document.body.classList.add('auth-ready');
+
+      // Update login stats silently
+      db.collection('users').doc(user.uid).update({
+        lastLogin: firebase.firestore.FieldValue.serverTimestamp(),
+        loginCount: firebase.firestore.FieldValue.increment(1)
+      }).catch(function(e) {
+        console.log('Stats update:', e.message);
+      });
+
+    } catch (error) {
+      console.error('Auth error:', error.code, error.message);
+
+      if (error.code === 'permission-denied') {
+        window.location.href = 'enter-code.html';
+        return;
+      }
+
+      window.location.href = 'login.html';
+    }
+
   });
 }
 
 initAuthGate();
+```
+
+---

@@ -250,10 +250,8 @@ tr.tsub td{background:var(--gp);font-weight:700;color:var(--gd)}
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
-
 </head>
 <body>
-  <div id="app" style="display:none;">
 <div id="offline-bar">&#128245; Offline &mdash; App running from cache</div>
 <div class="toast" id="toast"></div>
 <div id="install-banner">
@@ -984,15 +982,8 @@ function logout() {
   auth.signOut().then(function() {
     window.location.href = 'login.html';
   });
-}
 </script>
-</div>
-
-<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
   <script src="firebase-config.js"></script>
   <script src="auth-gate.js"></script>
-
 </body>
 </html>

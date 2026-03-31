@@ -979,9 +979,14 @@ function doShare(){
   }
 }
 function logout() {
-  auth.signOut().then(function() {
+  var firebaseAuth = firebase.auth();
+  firebaseAuth.signOut().then(function() {
+    window.location.href = 'login.html';
+  }).catch(function(error) {
+    console.error('Sign out error:', error);
     window.location.href = 'login.html';
   });
+}
 </script>
   <script src="firebase-config.js"></script>
   <script src="auth-gate.js"></script>

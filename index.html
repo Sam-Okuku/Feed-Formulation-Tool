@@ -19,9 +19,7 @@
 <link rel="manifest" href="manifest.json" crossorigin="use-credentials"/>
 <style>
   /* Auth gate styles */
-.auth-hidden { display: none !important; }
-body { opacity: 0; transition: opacity 0.3s; }
-body.auth-ready { opacity: 1; }
+#auth-overlay { position:fixed; top:0; left:0; width:100%; height:100%; background:#fff; z-index:99999; }
 :root{
   --gd:#1B4332;--gm:#2D6A4F;--gl:#52B788;--gp:#D8F3DC;
   --y:#FFEB3B;--yd:#F9A825;--yp:#FFFDE7;
@@ -252,6 +250,7 @@ tr.tsub td{background:var(--gp);font-weight:700;color:var(--gd)}
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
 </head>
 <body>
+  <div id="auth-overlay"></div>
 <div id="offline-bar">&#128245; Offline &mdash; App running from cache</div>
 <div class="toast" id="toast"></div>
 <div id="install-banner">

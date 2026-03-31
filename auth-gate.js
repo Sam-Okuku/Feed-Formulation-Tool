@@ -14,7 +14,8 @@ auth.onAuthStateChanged(async function(user) {
       window.location.href = 'access-denied.html';
       return;
     }
-    document.body.classList.add('auth-ready');
+    var overlay = document.getElementById('auth-overlay');
+    if (overlay) overlay.remove();
     db.collection('users').doc(user.uid).update({
       lastLogin: firebase.firestore.FieldValue.serverTimestamp(),
       loginCount: firebase.firestore.FieldValue.increment(1)

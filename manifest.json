@@ -2,7 +2,7 @@
   "name": "Village Prime Feed Tool",
   "short_name": "VP Feed Tool",
   "description": "Professional pig & poultry feed formulation using the Pearson Square method. By Village Prime Piggery, Busia Kenya.",
-  "start_url": "/Feed-Formulation-Tool/index.html",
+ "start_url": "/Feed-Formulation-Tool/login.html",
   "scope": "/Feed-Formulation-Tool/",
   "display": "standalone",
   "background_color": "#1B4332",

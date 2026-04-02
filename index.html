@@ -591,19 +591,12 @@ function setupOffline(){
 function setupInstall(){
   window.addEventListener('beforeinstallprompt', function(e){
     e.preventDefault();
-    // Store the event globally so auth-gate can use it after overlay is removed
-    window.__installPromptEvent = e;
     DP = e;
-    // Only show banner if overlay is already gone (returning users)
-    var overlay = document.getElementById('auth-overlay');
-    if (!overlay) {
-      document.getElementById('install-banner').classList.add('show');
-      document.getElementById('pwa-btn').classList.add('show');
-    }
+    window.__installPromptEvent = e;
+    // Always store it — auth-gate will show the banner after login
   });
   window.addEventListener('appinstalled', function(){
     document.getElementById('install-banner').classList.remove('show');
-    document.getElementById('pwa-btn').classList.remove('show');
     DP = null;
     window.__installPromptEvent = null;
     toast('App installed! Find it on your home screen.', 1);
